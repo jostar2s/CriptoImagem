@@ -36,21 +36,21 @@ largura, altura = img.size
 if tamanho_mensagem > largura * altura:
     raise ValueError("A mensagem é muito grande para a imagem.")
 
-# Iterar sobre cada pixel da imagem e esconder os bits da mensagem
-index = 0
-for linha in range(altura):
-    for coluna in range(largura):
-        r, g, b = img.getpixel((coluna, linha))
-        if index < tamanho_mensagem:
-            r = r & ~1 | int(bits[index])
-            index += 1
-        if index < tamanho_mensagem:
-            g = g & ~1 | int(bits[index])
-            index += 1
-        if index < tamanho_mensagem:
-            b = b & ~1 | int(bits[index])
-            index += 1
-        img.putpixel((coluna, linha), (r, g, b))
+# Escolher aleatoriamente um conjunto de pixels para esconder a mensagem
+pixels_escondidos = set()
+while len(pixels_escondidos) < tamanho_mensagem:
+    linha = random.randint(0, altura-1)
+    coluna = random.randint(0, largura-1)
+    if (coluna, linha) not in pixels_escondidos:
+        pixels_escondidos.add((coluna, linha))
+
+# Esconder a mensagem nos pixels escolhidos
+for index, (coluna, linha) in enumerate(pixels_escondidos):
+    r, g, b = img.getpixel((coluna, linha))
+    r = r & ~1 | int(bits[index * 3])
+    g = g & ~1 | int(bits[index * 3 + 1])
+    b = b & ~1 | int(bits[index * 3 + 2])
+    img.putpixel((coluna, linha), (r, g, b))
 
 # Salvar a imagem com a mensagem escondida
 img.save('imagem_com_mensagem.png')
@@ -58,5 +58,3 @@ img.save('imagem_com_mensagem.png')
 # Salvar o salt usado na criptografia em um arquivo
 with open('salt.txt', 'w') as f:
     f.write(salt)
-    
-    
